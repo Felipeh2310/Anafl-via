@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#14161c">
+
+    <title>Vendedora Virtual - Loja de Veículos</title>
+
+    <style>
+        :root {
+            --grafite: #14161c;
+            --grafite-2: #1f232c;
+            --vermelho: #d32f2f;
+            --vermelho-escuro: #a31f1f;
+            --fundo-chat: #eef0f4;
+            --texto: #25282f;
+            --whatsapp: #1fa855;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            background:
+                radial-gradient(circle at 20% 15%, rgba(211, 47, 47, 0.25), transparent 45%),
+                linear-gradient(135deg, #0d0e12, #232733);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 440px;
+            height: 720px;
+            max-height: calc(100dvh - 40px);
+            background: #ffffff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* CABEÇALHO */
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--grafite), var(--grafite-2));
+            border-bottom: 3px solid var(--vermelho);
+            color: white;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .car-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--vermelho), var(--vermelho-escuro));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .header-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-info h2 {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+
+        .status {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .online {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 6px #4caf50;
+        }
+
+        .header-whatsapp {
+            border: none;
+            background: var(--whatsapp);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .header-whatsapp:hover {
+            transform: scale(1.08);
+            filter: brightness(1.1);
+        }
+
+        /* ÁREA DO CHAT */
+
+        .chat-messages {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+            background: var(--fundo-chat);
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 14px;
+            animation: entrar 0.25s ease;
+        }
+
+        @keyframes entrar {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot { justify-content: flex-start; }
+        .message.user { justify-content: flex-end; }
+
+        .message-content {
+            max-width: 82%;
+            padding: 11px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .bot .message-content {
+            background: white;
+            color: var(--texto);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, var(--vermelho), var(--vermelho-escuro));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .time {
+            display: block;
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.55;
+            text-align: right;
+        }
+
+        .vehicle {
+            border-left: 3px solid var(--vermelho);
+            background: #f6f7f9;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .vehicle img {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .tag-exemplo {
+            display: inline-block;
+            background: #fff3cd;
+            color: #7a5b00;
+            font-size: 10px;
+            border-radius: 6px;
+            padding: 1px 6px;
+            margin-left: 4px;
+        }
+
+        .wa-btn {
+            display: inline-block;
+            margin-top: 10px;
+            border: none;
+            background: var(--whatsapp);
+            color: white;
+            padding: 9px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .wa-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        /* DIGITANDO */
+
+        .typing {
+            display: none;
+            font-size: 12px;
+            color: #6b7280;
+            padding: 0 20px 8px;
+            background: var(--fundo-chat);
+            align-items: center;
+            gap: 8px;
+        }
+
+        .typing.ativo { display: flex; }
+
+        .dots span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 3px;
+            background: #9aa0aa;
+            border-radius: 50%;
+            animation: pulo 1.2s infinite ease-in-out;
+        }
+
+        .dots span:nth-child(2) { animation-delay: 0.15s; }
+        .dots span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes pulo {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        /* OPÇÕES RÁPIDAS */
+
+        .quick-options {
+            padding: 10px 16px;
+            background: white;
+            border-top: 1px solid #e6e8ec;
+        }
+
+        .quick-options p {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .options {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .option {
+            border: 1px solid var(--vermelho);
+            background: white;
+            color: var(--vermelho);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12.5px;
+            transition: 0.2s;
+        }
+
+        .option:hover {
+            background: var(--vermelho);
+            color: white;
+        }
+
+        /* CAMPO DE DIGITAÇÃO */
+
+        .chat-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: white;
+            border-top: 1px solid #e6e8ec;
+        }
+
+        .chat-input input {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            outline: none;
+            background: #f1f3f6;
+            border-radius: 25px;
+            padding: 13px 17px;
+            font-size: 16px; /* evita zoom no iPhone */
+        }
+
+        .chat-input input:focus {
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.35);
+        }
+
+        .send-button {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--vermelho), var(--vermelho-escuro));
+            color: white;
+            cursor: pointer;
+            font-size: 19px;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.45);
+            flex-shrink: 0;
+        }
+
+        .send-button:hover {
+            transform: scale(1.08);
+            filter: brightness(1.1);
+        }
+
+        /* RESPONSIVO */
+
+        @media (max-width: 500px) {
+            body { padding: 0; }
+
+            .chat-container {
+                max-width: none;
+                height: 100vh;
+                height: 100dvh;
+                max-height: none;
+                border-radius: 0;
+            }
+
+            .message-content { max-width: 88%; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <!-- CABEÇALHO -->
+    <div class="chat-header">
+
+        <div class="car-icon">🚗</div>
+
+        <div class="header-info">
+            <h2>Vendedora Virtual</h2>
+            <div class="status">
+                <span class="online"></span>
+                <span id="statusLoja">Online • Loja de Veículos</span>
+            </div>
+        </div>
+
+        <button class="header-whatsapp" id="btnHeaderWhats" title="Falar pelo WhatsApp" aria-label="Falar pelo WhatsApp">💬</button>
+
+    </div>
+
+    <!-- MENSAGENS -->
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <!-- INDICADOR -->
+    <div class="typing" id="typing">
+        <span class="dots"><span></span><span></span><span></span></span>
+        Vendedora está digitando...
+    </div>
+
+    <!-- OPÇÕES RÁPIDAS -->
+    <div class="quick-options">
+        <p id="optionsLabel">Escolha uma opção:</p>
+        <div class="options" id="options"></div>
+    </div>
+
+    <!-- CAMPO DE DIGITAÇÃO -->
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Digite sua mensagem..." autocomplete="off">
+        <button class="send-button" id="sendButton" aria-label="Enviar">➤</button>
+    </div>
+
+</div>
+
+
+<script>
+/* =====================================================================
+   1. CONFIGURAÇÃO DA LOJA  →  EDITE AQUI
+   Tudo que for "[EDITE AQUI]" é tratado como "não configurado":
+   o chatbot não inventa dados, ele avisa e oferece o WhatsApp.
+   ===================================================================== */
+
+const LOJA = {
+    nome: "Loja de Veículos",
+    endereco: "[EDITE AQUI] Rua Exemplo, 000 - Bairro - Cidade/UF",
+    linkMapa: "",                          // ex.: link do Google Maps
+    telefone: "[EDITE AQUI] (00) 0000-0000",
+    horario: [
+        "[EDITE AQUI] Segunda a sexta: 00h às 00h",
+        "[EDITE AQUI] Sábado: 00h às 00h"
+    ],
+    // Número do WhatsApp com DDI + DDD + número, só dígitos. Ex.: "5511999999999"
+    whatsapp: "5500000000000",
+    mensagemWhatsapp: "Olá! Vim pelo atendimento virtual e gostaria de falar sobre um veículo.",
+    mostrarExemplos: true,                 // false = esconde veículos de exemplo
+    documentosCompra: [
+        "Documento de identificação com foto (RG ou CNH)",
+        "CPF",
+        "Comprovante de residência recente",
+        "Comprovante de renda (no caso de financiamento)"
+    ]
+};
+
+/* =====================================================================
+   2. CATÁLOGO DE VEÍCULOS  →  CADASTRE SEUS CARROS AQUI
+   Os itens abaixo são FICTÍCIOS (exemplo: true). Apague-os e cadastre
+   os reais. Campos opcionais: foto (URL da imagem).
+   ===================================================================== */
+
+const veiculos = [
+    {
+        marca: "Marca", modelo: "SAVEIRO WOLKSWAGEN ", ano: "2026",
+        preco: "R$ 95.900,00", cambio: "Manual", combustivel: "Flex",
+        km: "3227 km",  categoria: "Picape" , COR: BRANCO ,
+        
+    },
+    {
+        marca: "Marca", modelo: "Modelo: NIVUS WOLKSWAGEN", ano: "2024",
+        preco: "R$ 115.000,oo", cambio: "Automático", combustivel: "Flex",
+        km: "41.896", categoria: "SUV compacto", COR: CINZA ,
+        
+    },
+    {
+        marca: "Marca", modelo: "Modelo: WOLKSWAGEN POLO", ano: "2025",
+        preco: "R$ 90.990 ", cambio: "Automático", combustivel: "Flex",
+        km: "39.200", categoria: "SUV", COR: BRANCO
+        
+    },
+    {
+        marca: "Marca", modelo: "Modelo Picape (exemplo)", ano: "2023",
+        preco: "R$ 00.000,00", cambio: "Manual", combustivel: "Diesel",
+        km: "00.000 km", categoria: "Picape", disponivel: true,
+        foto: "", exemplo: true
+    }
+];
+
+/* =====================================================================
+   3. MENU DE OPÇÕES RÁPIDAS
+   ===================================================================== */
+
+const MENU = [
+    { rotulo: "🚗 Ver veículos",      mensagem: "Quais veículos vocês têm disponíveis?" },
+    { rotulo: "💰 Consultar preços",  mensagem: "Quero consultar preços" },
+    { rotulo: "💳 Financiamento",     mensagem: "Vocês trabalham com financiamento?" },
+    { rotulo: "🔄 Troca / Avaliação", mensagem: "Tenho um carro para trocar" },
+    { rotulo: "📋 Documentação",      mensagem: "Quais documentos são necessários?" },
+    { rotulo: "📍 Localização",       mensagem: "Onde fica a loja?" }
+];
+
+/* =====================================================================
+   4. FLUXO DE VENDA (perguntas em sequência)
+   `pular` (opcional): função que decide se o passo deve ser ignorado.
+   ===================================================================== */
+
+const FLUXO = [
+    {
+        id: "categoria", titulo: "Tipo de carro",
+        pergunta: "Claro! 🚗 Posso te ajudar. Você já tem algum modelo em mente ou está procurando por alguma categoria, como hatch, sedan, SUV ou utilitário?",
+        chips: ["Hatch", "Sedan", "SUV", "Picape", "Utilitário", "Ainda não sei"]
+    },
+    {
+        id: "modelo", titulo: "Modelo de preferência",
+        pergunta: "Tem alguma marca ou modelo de preferência?",
+        chips: ["Sem preferência"]
+    },
+    {
+        id: "faixa", titulo: "Faixa de preço",
+        pergunta: "Qual faixa de preço você pretende investir?",
+        chips: ["Até R$ 50 mil", "R$ 50 a 80 mil", "R$ 80 a 120 mil", "Acima de R$ 120 mil"]
+    },
+    {
+        id: "troca", titulo: "Veículo na troca",
+        pergunta: "Você tem algum veículo para dar na troca?",
+        chips: ["Sim, tenho", "Não tenho"]
+    },
+    {
+        id: "entrada", titulo: "Entrada",
+        pergunta: "Qual valor aproximado você pretende dar de entrada?",
+        chips: ["Sem entrada", "Até R$ 10 mil", "R$ 10 a 30 mil", "Acima de R$ 30 mil"]
+    },
+    {
+        id: "financiar", titulo: "Financiamento",
+        pergunta: "Você pretende financiar o restante ou pagar à vista?",
+        chips: ["Quero financiar", "À vista", "Ainda não sei"]
+    },
+    {
+        id: "parcelas", titulo: "Parcelas",
+        pergunta: "Em quantas parcelas, aproximadamente, você gostaria de financiar?",
+        chips: ["24x", "36x", "48x", "60x"],
+        pular: (lead) => /vista/.test(normalizar(lead.financiar || ""))
+    },
+    {
+        id: "contato", titulo: "Contato",
+        pergunta: "Para finalizar: qual seu nome e o melhor telefone/WhatsApp para a nossa equipe entrar em contato?",
+        chips: []
+    }
+];
+
+/* =====================================================================
+   5. UTILIDADES
+   ===================================================================== */
+
+function normalizar(texto) {
+    return String(texto)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")   // remove acentos
+        .replace(/[^a-z0-9\s]/g, " ")      // remove pontuação/emojis
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function escapeHtml(texto) {
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function escapeRegex(texto) {
+    return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function pick(lista) {
+    return lista[Math.floor(Math.random() * lista.length)];
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getTime() {
+    return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function distancia(a, b) {   // Levenshtein (tolerância a erros de digitação)
+    const m = [];
+    for (let i = 0; i <= a.length; i++) m[i] = [i];
+    for (let j = 0; j <= b.length; j++) m[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            m[i][j] = Math.min(
+                m[i - 1][j] + 1,
+                m[i][j - 1] + 1,
+                m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+            );
+        }
+    }
+    return m[a.length][b.length];
+}
+
+function configurado(valor) {
+    return Boolean(valor) && !String(valor).includes("[EDITE");
+}
+
+function saudacaoDoDia() {
+    const h = new Date().getHours();
+    if (h < 12) return "Bom dia";
+    if (h < 18) return "Boa tarde";
+    return "Boa noite";
+}
+
+function titulo(emoji, texto) {
+    return `${emoji} <strong>${texto}</strong><br><br>`;
+}
+
+/* =====================================================================
+   6. ELEMENTOS DA TELA E FUNÇÕES DO CHAT
+   ===================================================================== */
+
+const chatEl = document.getElementById("chatMessages");
+const typingEl = document.getElementById("typing");
+const optionsEl = document.getElementById("options");
+const optionsLabelEl = document.getElementById("optionsLabel");
+const inputEl = document.getElementById("messageInput");
+
+function addMessage(conteudo, tipo, somenteTexto) {
+    const msg = document.createElement("div");
+    msg.classList.add("message", tipo);
+
+    const corpo = somenteTexto ? escapeHtml(conteudo) : conteudo;
+
+    msg.innerHTML = `
+        <div class="message-content">
+            ${corpo}
+            <span class="time">${getTime()}</span>
+        </div>
+    `;
+
+    chatEl.appendChild(msg);
+    chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function mostrarDigitando(ativo) {
+    typingEl.classList.toggle("ativo", ativo);
+    chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+/* Fila: garante que as mensagens da vendedora saiam na ordem certa */
+let fila = Promise.resolve();
+function enfileirar(tarefa) {
+    fila = fila.then(tarefa).catch((erro) => console.error(erro));
+}
+
+/* Mostra uma ou várias mensagens da vendedora, com "digitando..." */
+async function botSay(mensagens, chips) {
+    const lista = Array.isArray(mensagens) ? mensagens : [mensagens];
+
+    for (const html of lista) {
+        mostrarDigitando(true);
+        const textoPuro = html.replace(/<[^>]*>/g, "");
+        await sleep(Math.min(500 + textoPuro.length * 9, 1700));
+        mostrarDigitando(false);
+        addMessage(html, "bot");
+    }
+
+    mostrarChips(chips);
+}
+
+/* Botões de resposta rápida (menu padrão ou opções do passo atual) */
+function mostrarChips(chips) {
+    optionsEl.innerHTML = "";
+
+    if (Array.isArray(chips) && chips.length > 0) {
+        optionsLabelEl.textContent = "Sugestões de resposta:";
+        chips.forEach((rotulo) => {
+            const b = document.createElement("button");
+            b.className = "option";
+            b.textContent = rotulo;
+            b.dataset.msg = rotulo;
+            optionsEl.appendChild(b);
+        });
+        return;
+    }
+
+    if (Array.isArray(chips)) {   // lista vazia: sem sugestões
+        optionsLabelEl.textContent = "";
+        return;
+    }
+
+    optionsLabelEl.textContent = "Escolha uma opção:";
+    MENU.forEach((item) => {
+        const b = document.createElement("button");
+        b.className = "option";
+        b.textContent = item.rotulo;
+        b.dataset.msg = item.mensagem;
+        optionsEl.appendChild(b);
+    });
+}
+
+/* =====================================================================
+   7. WHATSAPP
+   ===================================================================== */
+
+function whatsappConfigurado() {
+    return /^\d{10,15}$/.test(LOJA.whatsapp) && !/^55?0+$/.test(LOJA.whatsapp);
+}
+
+let ultimoLead = null;   // guarda a última ficha preenchida no fluxo
+
+function montarMensagemWhatsapp(usarLead) {
+    if (!usarLead || !ultimoLead) return LOJA.mensagemWhatsapp;
+
+    const rotulos = {
+        categoria: "Tipo de carro", modelo: "Modelo", faixa: "Faixa de preço",
+        troca: "Veículo na troca", entrada: "Entrada", financiar: "Pagamento",
+        parcelas: "Parcelas", contato: "Contato"
+    };
+
+    const linhas = Object.keys(rotulos)
+        .filter((k) => ultimoLead[k])
+        .map((k) => `• ${rotulos[k]}: ${ultimoLead[k]}`);
+
+    return `${LOJA.mensagemWhatsapp}\n\nMeus dados de interesse:\n${linhas.join("\n")}`;
+}
+
+function abrirWhatsApp(mensagem) {
+    if (!whatsappConfigurado()) {
+        enfileirar(() => botSay(
+            "O WhatsApp da loja ainda não foi configurado neste atendimento. 😊 " +
+            "Por enquanto, posso continuar te ajudando por aqui!"
+        ));
+        return false;
+    }
+
+    const url = `https://wa.me/${LOJA.whatsapp}?text=${encodeURIComponent(mensagem || LOJA.mensagemWhatsapp)}`;
+    window.open(url, "_blank", "noopener");
+    return true;
+}
+
+function botaoWhatsapp(rotulo, modo) {
+    return `<button class="wa-btn" data-wa="${modo || "padrao"}">💬 ${rotulo}</button>`;
+}
+
+/* =====================================================================
+   8. CATÁLOGO: BUSCA E EXIBIÇÃO
+   ===================================================================== */
+
+function veiculosVisiveis() {
+    return veiculos.filter((v) => v.disponivel && (LOJA.mostrarExemplos || !v.exemplo));
+}
+
+function cartaoVeiculo(v) {
+    const foto = v.foto ? `<img src="${escapeHtml(v.foto)}" alt="${escapeHtml(v.modelo)}">` : "";
+    const tag = v.exemplo ? `<span class="tag-exemplo">exemplo fictício</span>` : "";
+
+    return `
+        <div class="vehicle">
+            ${foto}
+            <strong>${escapeHtml(v.marca)} ${escapeHtml(v.modelo)}</strong> ${tag}<br>
+            ${escapeHtml(v.ano)} • ${escapeHtml(v.cambio)} • ${escapeHtml(v.combustivel)}<br>
+            ${escapeHtml(v.km)} • ${escapeHtml(v.categoria)}<br>
+            💰 <strong>${escapeHtml(v.preco)}</strong>
+        </div>`;
+}
+
+function filtrarCatalogo(norm) {
+    let lista = veiculosVisiveis();
+    const filtros = [];
+
+    const categorias = [
+        ["hatch", "hatch"], ["popular", "hatch"], ["sedan", "sedan"], ["suv", "suv"],
+        ["picape", "picape"], ["pickup", "picape"], ["utilitario", "utilit"], ["van", "utilit"]
+    ];
+
+    for (const [palavra, chave] of categorias) {
+        if (new RegExp("(^| )" + palavra).test(norm)) {
+            lista = lista.filter((v) => normalizar(v.categoria).includes(chave));
+            filtros.push(palavra === "popular" ? "popular" : v_cat(chave));
+            break;
+        }
+    }
+
+    if (/automatic/.test(norm)) {
+        lista = lista.filter((v) => normalizar(v.cambio).includes("automatic"));
+        filtros.push("automático");
+    } else if (/(^| )manual/.test(norm)) {
+        lista = lista.filter((v) => normalizar(v.cambio).includes("manual"));
+        filtros.push("manual");
+    }
+
+    return { lista, filtros };
+}
+
+function v_cat(chave) {
+    return { hatch: "hatch", sedan: "sedan", suv: "SUV", picape: "picape", utilit: "utilitário" }[chave] || chave;
+}
+
+function acharVeiculoNaMensagem(norm) {
+    return veiculosVisiveis().find((v) => {
+        const modelo = normalizar(v.modelo.replace(/\(.*?\)/g, ""));
+        return modelo.length > 2 && norm.includes(modelo);
+    });
+}
+
+/* =====================================================================
+   9. INTENÇÕES E RESPOSTAS
+   - keywords: palavras/frases (sem acento, minúsculas). Casam pelo INÍCIO
+     da palavra: "financ" reconhece financiar, financiamento, financia...
+   - exact: true → só reconhece a palavra inteira (ex.: "oi")
+   - resposta: texto (string), lista de variações (array → sorteia uma)
+     ou função que devolve texto / lista de textos (enviados em sequência)
+   Quanto mais específico o intent, mais forte ele pontua.
+   ===================================================================== */
+
+const intents = [
+    {
+        id: "saudacao", exact: true,
+        keywords: ["oi", "ola", "oie", "opa", "eai", "e ai", "bom dia", "boa tarde", "boa noite", "hello", "hey"],
+        resposta: () => pick([
+            `${saudacaoDoDia()}! 😊 É um prazer atender você.<br><br>Está procurando algum carro ou quer tirar uma dúvida?`,
+            `Olá! 😊 ${saudacaoDoDia()}!<br><br>Como posso te ajudar hoje? Posso mostrar veículos, valores, financiamento e mais.`
+        ])
+    },
+    {
+        id: "comprar",
+        keywords: ["comprar", "compra", "quero um carro", "procuro", "procurando um carro", "interesse", "quero adquirir", "estou querendo um carro", "preciso de um carro"],
+        resposta: ""   // inicia o fluxo de venda (ver iniciarFluxo)
+    },
+    {
+        id: "veiculos",
+        keywords: ["carros", "veiculos", "estoque", "catalogo", "disponive", "modelos", "suv", "hatch", "sedan", "picape", "pickup", "utilitario", "automatic", "popular", "ver os carros", "quais carros"],
+        resposta: (norm) => {
+            const { lista, filtros } = filtrarCatalogo(norm);
+            const busca = filtros.length ? ` (${filtros.join(", ")})` : "";
+
+            if (lista.length === 0) {
+                return [
+                    `${titulo("🚗", "Veículos")}No momento não encontrei nenhum veículo${busca} cadastrado aqui no meu catálogo. 😕<br><br>` +
+                    `Me conta o que você procura (categoria, modelo ou faixa de preço) que eu verifico as opções para você!`
+                ];
+            }
+
+            const cards = lista.slice(0, 5).map(cartaoVeiculo).join("");
+            const mais = lista.length > 5 ? `<br>E mais ${lista.length - 5} opção(ões) disponíveis!` : "";
+
+            return [
+                `${titulo("🚗", "Veículos disponíveis" + busca)}Olha o que temos por aqui:${cards}${mais}`,
+                pick([
+                    "Algum deles te interessou? Me diga qual tipo de carro você procura que eu te ajudo a encontrar o ideal. 😊",
+                    "Quer que eu filtre por categoria, câmbio ou faixa de preço? É só me dizer! 😉"
+                ])
+            ];
+        }
+    },
+    {
+        id: "preco",
+        keywords: ["preco", "valor", "quanto custa", "quanto esta", "quanto sai", "quanto e", "custa", "orcamento"],
+        resposta: (norm) => {
+            const v = acharVeiculoNaMensagem(norm);
+            if (v) {
+                return [`${titulo("💰", "Valor do " + escapeHtml(v.modelo))}${cartaoVeiculo(v)}<br>As condições podem variar conforme a forma de pagamento. Quer que eu simule um financiamento?`];
+            }
+            return [pick([
+                `${titulo("💰", "Consulta de preços")}Claro! 😊 Para te passar o valor certinho, me diga qual modelo você tem interesse.`,
+                `${titulo("💰", "Consulta de preços")}Perfeito! Vamos verificar essa possibilidade. Qual veículo você está procurando?`
+            ])];
+        }
+    },
+    {
+        id: "pagamento",
+        keywords: ["forma de pagamento", "formas de pagamento", "pagamento", "pagar", "cartao", "pix", "a vista", "boleto", "consorcio"],
+        resposta: () => `${titulo("💳", "Formas de pagamento")}Trabalhamos com diferentes formas de pagamento, como à vista, financiamento e entrada + parcelas. As condições variam de acordo com o veículo.<br><br>Me diga qual carro te interessou e como pretende pagar que eu te oriento! 😊`
+    },
+    {
+        id: "financiamento",
+        keywords: ["financ", "parcelar", "credito", "aprovacao", "simulacao", "simular", "a prazo"],
+        resposta: () => pick([
+            `${titulo("💳", "Financiamento")}Sim! 😊 Consigo te ajudar com as condições de financiamento.<br><br>Para simular, me informe:<br>• o <strong>modelo</strong> desejado<br>• o <strong>valor de entrada</strong><br>• a <strong>quantidade de parcelas</strong>`,
+            `${titulo("💳", "Financiamento")}Claro! É possível consultar condições de financiamento. Ótimo! Para eu te orientar melhor, me diga:<br>• qual veículo você quer<br>• quanto pretende dar de entrada<br>• em quantas parcelas gostaria de pagar`
+        ])
+    },
+    {
+        id: "entrada",
+        keywords: ["entrada", "dar de entrada", "dar entrada", "sinal", "valor da entrada"],
+        resposta: () => `${titulo("💵", "Entrada")}O valor de entrada pode variar de acordo com o veículo e com as condições do financiamento. 😊<br><br>Quanto você pretende dar de entrada, aproximadamente?`
+    },
+    {
+        id: "parcelas",
+        keywords: ["parcela", "prestacao", "por mes", "mensal", "valor da prestacao", "quanto fica por mes", "12x", "24x", "36x", "48x", "60x"],
+        resposta: () => `${titulo("🧾", "Parcelas")}Consigo te ajudar com uma simulação! Me informe:<br>• o <strong>veículo desejado</strong><br>• o <strong>valor aproximado da entrada</strong><br>• a <strong>quantidade de parcelas</strong> que você gostaria`
+    },
+    {
+        id: "avaliacao",
+        keywords: ["avali", "quanto vale", "vale meu carro", "vender meu carro", "quero vender"],
+        resposta: () => `${titulo("🔍", "Avaliação do seu veículo")}Posso te ajudar com isso! 😊 Me envie os dados do seu carro:<br>• <strong>marca</strong> e <strong>modelo</strong><br>• <strong>ano</strong><br>• <strong>quilometragem</strong><br>• <strong>estado geral</strong> (pintura, pneus, revisões...)<br><br>A avaliação final é feita pela nossa equipe, com vistoria do veículo.`
+    },
+    {
+        id: "troca",
+        keywords: ["troca", "trocar", "carro usado", "dar meu carro", "carro na troca", "aceitam carro", "aceita carro", "tenho um carro", "tenho carro"],
+        resposta: () => `${titulo("🔄", "Troca de veículo")}Sim, nossa loja pode avaliar o seu veículo usado na troca! 🚗<br><br>Me passe as informações:<br>• <strong>marca</strong> e <strong>modelo</strong><br>• <strong>ano</strong><br>• <strong>quilometragem</strong><br>• <strong>estado geral</strong>`
+    },
+    {
+        id: "documentacao",
+        keywords: ["document", "transferencia", "ipva", "licenciamento", "vistoria", "dut", "papelada"],
+        resposta: () => `${titulo("📋", "Documentação")}De forma geral, para comprar um veículo você precisará de:<br><br>${LOJA.documentosCompra.map((d) => "• " + d).join("<br>")}<br><br>A loja orienta todo o processo de transferência. Se tiver dúvidas sobre o seu caso, nossa equipe confirma os detalhes. 😉`
+    },
+    {
+        id: "testdrive",
+        keywords: ["test drive", "testdrive", "testar", "dar uma volta", "experimentar"],
+        resposta: () => [`${titulo("🏁", "Test drive")}Boa ideia! Conhecer o carro de perto faz toda a diferença. 😊 Me diga qual modelo você quer testar e o melhor dia/horário que a nossa equipe verifica a disponibilidade.`, botaoWhatsapp("Agendar pelo WhatsApp")]
+    },
+    {
+        id: "localizacao",
+        keywords: ["endereco", "onde fica", "localiza", "como chegar", "onde voces ficam", "onde estao", "mapa", "visitar", "loja fisica", "onde e a loja"],
+        resposta: () => {
+            if (!configurado(LOJA.endereco)) {
+                return [`${titulo("📍", "Localização")}O endereço completo da loja será passado pela nossa equipe. 😊 Posso te encaminhar para o WhatsApp?`, botaoWhatsapp("Falar pelo WhatsApp")];
+            }
+            const mapa = LOJA.linkMapa ? `<br><br><a href="${escapeHtml(LOJA.linkMapa)}" target="_blank" rel="noopener">🗺️ Abrir no mapa</a>` : "";
+            return `${titulo("📍", "Localização")}Estamos aqui:<br>${escapeHtml(LOJA.endereco)}${mapa}<br><br>Será um prazer receber você! 🚗`;
+        }
+    },
+    {
+        id: "horario",
+        keywords: ["horario", "funcionamento", "abre", "fecha", "aberto", "sabado", "domingo", "expediente"],
+        resposta: () => {
+            if (!LOJA.horario.some(configurado)) {
+                return `${titulo("🕒", "Horário de atendimento")}Os horários de atendimento serão confirmados pela nossa equipe. Quer falar direto pelo WhatsApp? 😊`;
+            }
+            return `${titulo("🕒", "Horário de atendimento")}${LOJA.horario.map(escapeHtml).join("<br>")}`;
+        }
+    },
+    {
+        id: "contato",
+        keywords: ["telefone", "whatsapp", "zap", "contato", "ligar", "falar com", "atendente", "vendedor", "humano", "pessoa"],
+        resposta: () => {
+            const tel = configurado(LOJA.telefone) ? `<br>📞 ${escapeHtml(LOJA.telefone)}` : "";
+            return [`${titulo("📞", "Contato")}Claro! Você pode falar direto com a nossa equipe:${tel}`, botaoWhatsapp("Falar pelo WhatsApp")];
+        }
+    },
+    {
+        id: "agradecimento", exact: true,
+        keywords: ["obrigado", "obrigada", "valeu", "agradeco", "brigado", "brigada", "vlw"],
+        resposta: ["Por nada! 😊 Fico feliz em ajudar. Se precisar de mais alguma coisa, é só chamar!", "Imagina! 😊 Estou à disposição para o que precisar."]
+    },
+    {
+        id: "despedida", exact: true,
+        keywords: ["tchau", "ate mais", "ate logo", "falou", "flw", "ate amanha"],
+        resposta: ["Até mais! 👋 Foi um prazer atender você. Volte sempre!", "Tchau! 🚗 Qualquer dúvida, é só chamar. Boa sorte na busca pelo seu carro!"]
+    }
+];
+
+/* Resposta para assuntos não reconhecidos */
+const respostasNaoReconhecido = [
+    `Hmm, ainda não consegui entender bem essa pergunta. 🤔<br><br>Posso te ajudar com <strong>veículos, preços, financiamento, troca, documentação ou localização</strong>. Pode reformular, ou, se preferir, falar direto com a nossa equipe.`,
+    `Não tenho essa informação por aqui. 😅<br><br>Mas posso te ajudar com <strong>carros disponíveis, valores, financiamento, avaliação do seu veículo</strong> e muito mais. O que prefere?`
+];
+
+/* Prepara as palavras-chave (normaliza e cria as expressões de busca) */
+intents.forEach((intent) => {
+    intent.kws = intent.keywords.map(normalizar);
+    intent.regs = intent.kws.map((kw) =>
+        new RegExp(intent.exact ? `(^| )${escapeRegex(kw)}( |$)` : `(^| )${escapeRegex(kw)}`)
+    );
+});
+
+function detectarIntencao(norm) {
+    const tokens = norm.split(" ");
+    let melhor = null;
+    let melhorPontos = 0;
+
+    for (const intent of intents) {
+        let pontos = 0;
+
+        intent.kws.forEach((kw, i) => {
+            if (intent.regs[i].test(norm)) {
+                pontos += kw.length;
+            } else if (!intent.exact && !kw.includes(" ") && kw.length >= 6) {
+                // tolera 1 erro de digitação em palavras mais longas
+                const quase = tokens.some((t) => Math.abs(t.length - kw.length) <= 1 && distancia(t, kw) <= 1);
+                if (quase) pontos += kw.length - 1;
+            }
+        });
+
+        if (pontos > melhorPontos) {
+            melhorPontos = pontos;
+            melhor = intent;
+        }
+    }
+
+    return melhor;
+}
+
+function resolverResposta(intent, norm) {
+    let r = intent.resposta;
+    if (typeof r === "function") r = r(norm);
+    else if (Array.isArray(r)) r = pick(r);
+    return Array.isArray(r) ? r : [r];
+}
+
+/* =====================================================================
+   10. FLUXO DE VENDA
+   ===================================================================== */
+
+const fluxo = { ativo: false, i: 0, lead: {} };
+
+const confirmacoes = ["Perfeito! 👍", "Ótimo! 😊", "Anotado! ✍️", "Show! 🙌", "Combinado! 😉"];
+
+async function iniciarFluxo() {
+    fluxo.ativo = true;
+    fluxo.i = 0;
+    fluxo.lead = {};
+    await botSay(FLUXO[0].pergunta, FLUXO[0].chips);
+}
+
+function proximoPasso(a) {
+    let i = a + 1;
+    while (i < FLUXO.length && FLUXO[i].pular && FLUXO[i].pular(fluxo.lead)) i++;
+    return i;
+}
+
+async function tratarFluxo(texto, norm) {
+    const passo = FLUXO[fluxo.i];
+
+    // sair do fluxo
+    if (/(^| )(cancelar|parar|sair|menu)( |$)/.test(norm)) {
+        fluxo.ativo = false;
+        await botSay("Sem problemas! 😊 Podemos retomar quando quiser. Como posso ajudar?");
+        return;
+    }
+
+    // pergunta no meio do fluxo: responde e retoma
+    if (texto.includes("?")) {
+        const intent = detectarIntencao(norm);
+        if (intent && !["saudacao", "agradecimento", "comprar", "despedida"].includes(intent.id)) {
+            const resposta = resolverResposta(intent, norm);
+            await botSay([...resposta, `Voltando ao seu atendimento: ${passo.pergunta}`], passo.chips);
+            return;
+        }
+    }
+
+    // registra a resposta e avança
+    fluxo.lead[passo.id] = texto;
+    fluxo.i = proximoPasso(fluxo.i);
+
+    if (fluxo.i >= FLUXO.length) {
+        await finalizarFluxo();
+        return;
+    }
+
+    const prox = FLUXO[fluxo.i];
+    await botSay(`${pick(confirmacoes)}<br><br>${prox.pergunta}`, prox.chips);
+}
+
+async function finalizarFluxo() {
+    ultimoLead = { ...fluxo.lead };
+    fluxo.ativo = false;
+
+    const nomes = {
+        categoria: "Tipo de carro", modelo: "Modelo", faixa: "Faixa de preço",
+        troca: "Veículo na troca", entrada: "Entrada", financiar: "Pagamento",
+        parcelas: "Parcelas", contato: "Contato"
+    };
+
+    const resumo = Object.keys(nomes)
+        .filter((k) => ultimoLead[k])
+        .map((k) => `• ${nomes[k]}: <strong>${escapeHtml(ultimoLead[k])}</strong>`)
+        .join("<br>");
+
+    await botSay([
+        `Prontinho! 🎉 Já tenho o que preciso para te atender:<br><br>${resumo}`,
+        `Nossa equipe vai analisar as melhores opções para você. Se quiser agilizar, é só enviar essas informações pelo WhatsApp: 👇<br>${botaoWhatsapp("Enviar pelo WhatsApp", "resumo")}`
+    ]);
+}
+
+/* =====================================================================
+   11. PROCESSAMENTO DAS MENSAGENS
+   ===================================================================== */
+
+function processarMensagem(texto) {
+    const norm = normalizar(texto);
+
+    enfileirar(async () => {
+        if (fluxo.ativo) {
+            await tratarFluxo(texto, norm);
+            return;
+        }
+
+        const intent = detectarIntencao(norm);
+
+        if (!intent) {
+            await botSay([pick(respostasNaoReconhecido), botaoWhatsapp("Falar com a equipe")]);
+            return;
+        }
+
+        if (intent.id === "comprar") {
+            await iniciarFluxo();
+            return;
+        }
+
+        await botSay(resolverResposta(intent, norm));
+    });
+}
+
+/* =====================================================================
+   12. INTERAÇÃO COM O USUÁRIO
+   ===================================================================== */
+
+function sendMessage() {
+    const texto = inputEl.value.trim();
+    if (texto === "") return;
+
+    addMessage(texto, "user", true);
+    inputEl.value = "";
+    processarMensagem(texto);
+}
+
+function quickMessage(texto) {
+    addMessage(texto, "user", true);
+    processarMensagem(texto);
+}
+
+document.getElementById("sendButton").addEventListener("click", sendMessage);
+
+inputEl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+    }
+});
+
+// Botões de resposta rápida
+optionsEl.addEventListener("click", (event) => {
+    const botao = event.target.closest(".option");
+    if (botao) quickMessage(botao.dataset.msg);
+});
+
+// Botões de WhatsApp (dentro das mensagens)
+chatEl.addEventListener("click", (event) => {
+    const botao = event.target.closest("[data-wa]");
+    if (!botao) return;
+    abrirWhatsApp(montarMensagemWhatsapp(botao.dataset.wa === "resumo"));
+});
+
+// Botão de WhatsApp do cabeçalho
+document.getElementById("btnHeaderWhats").addEventListener("click", () => {
+    abrirWhatsApp(montarMensagemWhatsapp(false));
+});
+
+/* =====================================================================
+   13. INÍCIO DO ATENDIMENTO
+   ===================================================================== */
+
+document.getElementById("statusLoja").textContent = `Online • ${LOJA.nome}`;
+
+enfileirar(() => botSay([
+    `Olá! 👋 ${saudacaoDoDia()}, seja bem-vindo(a)!<br>Sou a atendente virtual da nossa loja de veículos.`,
+    `Posso ajudar você a encontrar um carro, consultar preços, formas de pagamento, financiamento, entrada, avaliação do seu veículo e muito mais. 🚗<br><br>Se quiser começar, é só dizer o que procura ou escolher uma opção abaixo. 👇`
+]));
+
+</script>
+
+</body>
+</html>
